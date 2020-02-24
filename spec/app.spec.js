@@ -20,4 +20,29 @@ describe("/api", () => {
       });
     });
   });
+  describe("/users", () => {
+    describe("/:id", () => {
+      it("GET 200 responds with user object as requested in path", () => {
+        return request(app)
+          .get("/api/users/butter_bridge")
+          .expect(200)
+          .then(response => {
+            expect(response.body.user).to.be.an("object");
+            expect(response.body.user).to.contain.keys([
+              "username",
+              "name",
+              "avatar_url"
+            ]);
+          });
+      });
+      it("GET:404 sends an appropriate and error message when given a valid but non-existent id", () => {
+        return request(app)
+          .get("/api/users/lordtest")
+          .expect(404)
+          .then(response => {
+            expect(response.body.msg).to.equal("404 - user does not exist");
+          });
+      });
+    });
+  });
 });
