@@ -22,4 +22,12 @@ exports.makeRefObj = list => {
   return obj;
 };
 
-exports.formatComments = (comments, articleRef) => {};
+exports.formatComments = (comments, articleRef) => {
+  const newComments = [];
+  if (comments.length > 0) {
+    comments.forEach(item => {
+      newComments.push({ ...item, article_id: articleRef[item.belongs_to] });
+    });
+  }
+  return newComments;
+};
