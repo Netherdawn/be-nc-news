@@ -188,7 +188,7 @@ describe("makeRefObj", () => {
   });
 });
 
-describe.only("formatComments", () => {
+describe("formatComments", () => {
   it("when passed an empty array returns an empty array", () => {
     expect(formatComments([])).to.eql([]);
   });
@@ -233,6 +233,23 @@ describe.only("formatComments", () => {
     expect(result[0]).to.not.contain.keys(["created_by"]);
     expect(result[0].author).to.eql("whazzam");
   });
+  it("when passed a simple array with a complex object changess a keyvalue pair of created_by to author", () => {
+    const input = [
+      {
+        body:
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: "butter_bridge",
+        votes: 16,
+        created_at: 1511354163389
+      }
+    ];
+    const refObj = { "They're not exactly dogs, are they?": 1 };
+    const result = formatComments(input, refObj);
+    expect(result[0]).to.contain.keys(["author"]);
+    expect(result[0]).to.not.contain.keys(["created_by"]);
+    expect(result[0].author).to.eql("butter_bridge");
+  });
   it("when passed a long array with a complex object adds a keyvalue pair for the matching title from the ref obj for each item", () => {
     const input = [
       {
@@ -264,15 +281,66 @@ describe.only("formatComments", () => {
       "They're not exactly dogs, are they?": 1,
       "Living in the shadow of a great man": 2
     };
+
+    const testRefObj = {
+      1: "They're not exactly dogs, are they?",
+      2: "Living in the shadow of a great man"
+    };
+
     const result = formatComments(input, refObj);
     result.forEach(item => {
       expect(item).to.contain.keys(["article_id"]);
-      if (item.created_by === "Living in the shadow of a great man") {
-        expect(item.article_id).to.eql(2);
-      } else if (item.created_by === "They're not exactly dogs, are they?") {
-        expect(item.article_id).to.eql(1);
+      expect(item).to.not.contain.keys(["belongs_to"]);
+      if (item.article_id === 1) {
+        expect(testRefObj[item.article_id]).to.eql(
+          "They're not exactly dogs, are they?"
+        );
+      } else {
+        expect(testRefObj[item.article_id]).to.eql(
+          "Living in the shadow of a great man"
+        );
       }
     });
+  });
+  it("when passed a long array with a complex object changes keyvalue pair of created_by to author for each item", () => {
+    const input = [
+      {
+        body:
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: "butter_bridge",
+        votes: 16,
+        created_at: 1511354163389
+      },
+      {
+        body:
+          "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "butter_bridge",
+        votes: 14,
+        created_at: 1479818163389
+      },
+      {
+        body:
+          "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 100,
+        created_at: 1448282163389
+      }
+    ];
+    const refObj = {
+      "They're not exactly dogs, are they?": 1,
+      "Living in the shadow of a great man": 2
+    };
+
+    const result = formatComments(input, refObj);
+
+    for (let i = 0; i < result.length; i++) {
+      expect(result[i]).to.contain.keys(["author"]);
+      expect(result[i]).to.not.contain.keys(["created_by"]);
+      expect(result[i].author).to.eql(input[i].created_by);
+    }
   });
   it("expect the return array to not be a mutated version of the original", () => {
     it("when passed a long array with a complex object adds a keyvalue pair for the matching title from the ref obj for each item", () => {

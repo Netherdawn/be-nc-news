@@ -32,6 +32,7 @@ exports.formatComments = (comments, articleRef) => {
         author: item.created_by
       };
       delete newItem.created_by;
+      delete newItem.belongs_to;
       newComments.push(newItem);
     });
   }
