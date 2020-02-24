@@ -1,5 +1,5 @@
 const express = require("express");
-const apiRouter = require("./routes/apiRouter");
+const apiRouter = require("./routes/api.router");
 const { customErrors, psqlErrors, handle500s } = require("./errors");
 
 const app = express();
