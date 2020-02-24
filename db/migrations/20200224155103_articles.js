@@ -8,7 +8,7 @@ exports.up = function(knex) {
       .notNullable();
     articlesTable.string("author").notNullable();
     articlesTable.string("body").notNullable();
-    articlesTable.timestamp("created_at").deaultTo(knew.fn.now());
+    articlesTable.timestamp("created_at");
   });
 };
 
