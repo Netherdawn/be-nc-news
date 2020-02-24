@@ -26,7 +26,13 @@ exports.formatComments = (comments, articleRef) => {
   const newComments = [];
   if (comments.length > 0) {
     comments.forEach(item => {
-      newComments.push({ ...item, article_id: articleRef[item.belongs_to] });
+      const newItem = {
+        ...item,
+        article_id: articleRef[item.belongs_to],
+        author: item.created_by
+      };
+      delete newItem.created_by;
+      newComments.push(newItem);
     });
   }
   return newComments;

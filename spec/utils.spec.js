@@ -193,7 +193,12 @@ describe.only("formatComments", () => {
     expect(formatComments([])).to.eql([]);
   });
   it("when passed a simple array with a simple object adds a keyvalue pair for the matching title from the ref obj", () => {
-    const input = [{ belongs_to: "They're not exactly dogs, are they?" }];
+    const input = [
+      {
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: "whazzam"
+      }
+    ];
     const refObj = { "They're not exactly dogs, are they?": 1 };
     const result = formatComments(input, refObj);
     expect(result[0]).to.contain.keys(["article_id"]);
@@ -214,6 +219,19 @@ describe.only("formatComments", () => {
     const result = formatComments(input, refObj);
     expect(result[0]).to.contain.keys(["article_id"]);
     expect(result[0].article_id).to.eql(1);
+  });
+  it("when passed a simple array with a simple object changess a keyvalue pair of created_by to author", () => {
+    const input = [
+      {
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: "whazzam"
+      }
+    ];
+    const refObj = { "They're not exactly dogs, are they?": 1 };
+    const result = formatComments(input, refObj);
+    expect(result[0]).to.contain.keys(["author"]);
+    expect(result[0]).to.not.contain.keys(["created_by"]);
+    expect(result[0].author).to.eql("whazzam");
   });
   it("when passed a long array with a complex object adds a keyvalue pair for the matching title from the ref obj for each item", () => {
     const input = [
