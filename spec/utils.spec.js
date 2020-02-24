@@ -89,7 +89,7 @@ describe("formatDates", () => {
       }
     ]);
   });
-  it("If passed a long array with full data set including unix date, will return long array with date swapped for valid string date and additional info", () => {
+  it("expect returned array and objects to not bve mutated versions of the original input", () => {
     const input = [
       {
         title: "Living in the shadow of a great man",
@@ -117,6 +117,9 @@ describe("formatDates", () => {
     ];
     const expected = formatDates(input);
     expect(expected).to.not.equal(input);
+    for (let i = 0; i < expected.length; i++) {
+      expect(expected[i]).to.not.equal(input[i]);
+    }
   });
 });
 
@@ -250,6 +253,45 @@ describe.only("formatComments", () => {
         expect(item.article_id).to.eql(2);
       } else if (item.created_by === "They're not exactly dogs, are they?") {
         expect(item.article_id).to.eql(1);
+      }
+    });
+  });
+  it("expect the return array to not be a mutated version of the original", () => {
+    it("when passed a long array with a complex object adds a keyvalue pair for the matching title from the ref obj for each item", () => {
+      const input = [
+        {
+          body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          belongs_to: "They're not exactly dogs, are they?",
+          created_by: "butter_bridge",
+          votes: 16,
+          created_at: 1511354163389
+        },
+        {
+          body:
+            "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+          belongs_to: "Living in the shadow of a great man",
+          created_by: "butter_bridge",
+          votes: 14,
+          created_at: 1479818163389
+        },
+        {
+          body:
+            "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+          belongs_to: "Living in the shadow of a great man",
+          created_by: "icellusedkars",
+          votes: 100,
+          created_at: 1448282163389
+        }
+      ];
+      const refObj = {
+        "They're not exactly dogs, are they?": 1,
+        "Living in the shadow of a great man": 2
+      };
+      const result = formatComments(input, refObj);
+      expect(result).to.not.equal(input);
+      for (let i = 0; i < result.length; i++) {
+        expect(result[i].to.not.equal(input[i]));
       }
     });
   });
