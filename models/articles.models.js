@@ -79,7 +79,6 @@ exports.createCommentByArticleId = (articleId, username, body) => {
     author: username,
     body: body
   };
-  console.log(commentObj);
   return connection("comments")
     .insert(commentObj)
     .returning("*")
