@@ -177,13 +177,35 @@ describe("/api", () => {
               expect(response.body.msg).to.eql("400 - bad request");
             });
         });
-        it("POST 400 - responds with appropriate error message if trying to add a comment to an article that doesn't exist", () => {
+        it("POST 404 - responds with appropriate error message if trying to add a comment to an article that doesn't exist", () => {
           return request(app)
             .post("/api/articles/400/comment")
             .send({ username: "butter_bridge", body: "what is going on?" })
-            .expect(400)
+            .expect(404)
             .then(response => {
-              expect(response.body.msg).to.eql("400 - bad request");
+              expect(response.body.msg).to.eql("404 - not found");
+            });
+        });
+        it("POST 201 - post request ignores additional key value pairs provided", () => {
+          return request(app)
+            .post("/api/articles/1/comment")
+            .send({
+              username: "butter_bridge",
+              body: "what is going on?",
+              test: 9001
+            })
+            .expect(201)
+            .then(response => {
+              expect(response.body.comment).to.contain.keys([
+                `comment_id`,
+                `author`,
+                `article_id`,
+                `votes`,
+                `created_at`,
+                `body`
+              ]);
+              expect(response.body.comment.comment_id).to.eql(19);
+              expect(response.body.comment.body).to.eql("what is going on?");
             });
         });
       });

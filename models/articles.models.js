@@ -28,7 +28,6 @@ exports.fetchArticleById = articleId => {
 };
 
 exports.updateArticleVotesById = (articleId, votesToChange) => {
-  console.log(votesToChange);
   if (votesToChange) {
     return this.fetchArticleById(articleId).then(article => {
       article.votes += votesToChange;
