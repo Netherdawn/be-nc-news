@@ -432,6 +432,29 @@ describe("/api", () => {
             });
         });
       });
+      describe.only("DELETE", () => {
+        it("DELETE 204 - deletes enquiry and responds with correct status code", () => {
+          return request(app)
+            .delete("/api/comments/1")
+            .expect(204);
+        });
+        it("DELETE 404 - responds with appropriate error when trying to delete non-existant", () => {
+          return request(app)
+            .delete("/api/comments/404")
+            .expect(404)
+            .then(response => {
+              expect(response.body.msg).to.eql("404 - not found");
+            });
+        });
+        it("DELETE 400 - responds with appropriate error when deleting error with incorrect datatype as param", () => {
+          return request(app)
+            .delete("/api/comments/captainAhab")
+            .expect(400)
+            .then(response => {
+              expect(response.body.msg).to.eql("400 - bad request");
+            });
+        });
+      });
     });
   });
 });
