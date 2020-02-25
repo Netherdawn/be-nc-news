@@ -302,13 +302,13 @@ describe("/api", () => {
                 expect(response.body.msg).to.eql("400 - bad request");
               });
           });
-          it("POST 404 - responds with appropriate error message if trying to add a comment to an article that doesn't exist", () => {
+          it("POST 422 - responds with appropriate error message if trying to add a comment to an article that doesn't exist", () => {
             return request(app)
-              .post("/api/articles/400/comments")
+              .post("/api/articles/422/comments")
               .send({ username: "butter_bridge", body: "what is going on?" })
-              .expect(404)
+              .expect(422)
               .then(response => {
-                expect(response.body.msg).to.eql("404 - not found");
+                expect(response.body.msg).to.eql("422 - unprocessable entity");
               });
           });
           it("POST 201 - post request ignores additional key value pairs provided", () => {
@@ -432,7 +432,7 @@ describe("/api", () => {
             });
         });
       });
-      describe.only("DELETE", () => {
+      describe("DELETE", () => {
         it("DELETE 204 - deletes enquiry and responds with correct status code", () => {
           return request(app)
             .delete("/api/comments/1")

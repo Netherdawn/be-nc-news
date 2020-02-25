@@ -13,13 +13,13 @@ exports.psqlErrors = (err, req, res, next) => {
   console.log(err.code);
   const template = {
     badRequest: { status: 400, msg: "400 - bad request" },
-    notFound: { status: 404, msg: "404 - not found" }
+    unprocessableEntity: { status: 422, msg: "422 - unprocessable entity" }
   };
   const errCodes = {
     "22P02": template.badRequest,
     "23502": template.badRequest,
     "42703": template.badRequest,
-    "23503": template.notFound
+    "23503": template.unprocessableEntity
   };
 
   if (err.code) {
