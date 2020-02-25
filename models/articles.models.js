@@ -14,6 +14,41 @@ const fetchArticleObjectById = articleId => {
     .then(article => article[0]);
 };
 
+const articleCommentRef = () => {
+  return connection("comments")
+    .select("article_id")
+    .count("article_id")
+    .groupBy("article_id")
+    .then(result => {
+      let commentRefObj = {};
+      result.forEach(element => {
+        commentRefObj[element.article_id] = element.count;
+      });
+      return commentRefObj;
+    });
+};
+
+const fetchEveryArticle = queryObj => {
+  let searchTermsObj = { ...queryObj };
+  delete searchTermsObj.sort_by;
+  delete searchTermsObj.order;
+  if (Object.keys(searchTermsObj).length === 0) {
+    searchTermsObj = true;
+  }
+
+  return connection("articles")
+    .select("*")
+    .where(searchTermsObj)
+    .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
+    .then(articles => {
+      if (articles.length === 0) {
+        return Promise.reject({ status: 404, msg: "404 - not found" });
+      } else {
+        return articles;
+      }
+    });
+};
+
 exports.fetchArticleById = articleId => {
   return Promise.all([
     fetchCommentsByArticleId(articleId),
@@ -61,4 +96,19 @@ exports.fetchAllCommentsByArticleId = articleId => {
       return comments;
     }
   });
+};
+
+exports.fetchAllArticles = queryObj => {
+  return Promise.all([fetchEveryArticle(queryObj), articleCommentRef()]).then(
+    ([articles, refObj]) => {
+      articles.forEach(article => {
+        if (refObj[article.article_id]) {
+          article.comment_count = refObj[article.article_id];
+        } else {
+          article.comment_count = 0;
+        }
+      });
+      return articles;
+    }
+  );
 };

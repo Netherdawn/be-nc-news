@@ -1,5 +1,7 @@
 const request = require("supertest");
-const { expect } = require("chai");
+const chai = require("chai");
+const expect = chai.expect;
+chai.use(require("chai-sorted"));
 const app = require("../app");
 const connection = require("../db/connect");
 const knex = require("../db/connect");
@@ -50,6 +52,120 @@ describe("/api", () => {
     });
   });
   describe("/articles", () => {
+    it("GET 200 - responds with an array of articles", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles).to.be.an("array");
+          response.body.articles.forEach(article => {
+            expect(article).to.be.an("object");
+            expect(article).to.contain.keys([
+              `author`,
+              `title`,
+              `article_id`,
+              `body`,
+              `topic`,
+              `created_at`,
+              `votes`,
+              `comment_count`
+            ]);
+          });
+        });
+    });
+    it("GET 200 - responds with an array of articles sorted default by date and descending", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles).to.be.an("array");
+          expect(response.body.articles).to.be.sortedBy("created_at", {
+            descending: true
+          });
+        });
+    });
+    it("GET 200 - responds with an array of articles sorted by query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles).to.be.an("array");
+          expect(response.body.articles).to.be.sortedBy("author", {
+            descending: true
+          });
+        });
+    });
+    it("GET 200 - responds with an array of articles ordered by query", () => {
+      return request(app)
+        .get("/api/articles?order=asc")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles).to.be.an("array");
+          expect(response.body.articles).to.be.sortedBy("created_at", {
+            descending: false
+          });
+        });
+    });
+    it("GET 200 - responds with an array of articles ordered and sorted by query", () => {
+      return request(app)
+        .get("/api/articles?order=asc&sort_by=author")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles).to.be.an("array");
+          expect(response.body.articles).to.be.sortedBy("author", {
+            descending: false
+          });
+        });
+    });
+    it("GET 200 - responds with an array of articles queried by author", () => {
+      return request(app)
+        .get("/api/articles?author=butter_bridge")
+        .expect(200)
+        .then(response => {
+          response.body.articles.forEach(article => {
+            expect(article.author).to.eql("butter_bridge");
+          });
+        });
+    });
+    it("GET 200 - responds with an array of articles queried by topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(response => {
+          response.body.articles.forEach(article => {
+            expect(article.topic).to.eql("mitch");
+          });
+        });
+    });
+    it("GET 200 - responds with an array of articles queried, sorted and ordered", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&sort_by=author&order=asc")
+        .expect(200)
+        .then(response => {
+          expect(response.body.articles).to.be.sortedBy("author", {
+            descending: false
+          });
+          response.body.articles.forEach(article => {
+            expect(article.topic).to.eql("mitch");
+          });
+        });
+    });
+    it("GET 404 - responds with appropriate error if looking for a column that doesn't exist", () => {
+      return request(app)
+        .get("/api/articles?topic=testy")
+        .expect(404)
+        .then(response => {
+          expect(response.body.msg).to.eql("404 - not found");
+        });
+    });
+    it("GET 400 - responds with appropriate error if searching a column with incorrect data type", () => {
+      return request(app)
+        .get("/api/articles?article_id=potato")
+        .expect(400)
+        .then(response => {
+          expect(response.body.msg).to.eql("400 - bad request");
+        });
+    });
     describe("/:id", () => {
       it("GET 200 - responds with article object that contains information from user & comments", () => {
         return request(app)
@@ -149,7 +265,7 @@ describe("/api", () => {
             expect(response.body.msg).to.eql("404 - not found");
           });
       });
-      describe.only("/comment", () => {
+      describe("/comment", () => {
         it("POST 201 - creates a new row in the comments table and responds with an object with the details of the new row in the comment table", () => {
           return request(app)
             .post("/api/articles/1/comments")
@@ -208,7 +324,7 @@ describe("/api", () => {
               expect(response.body.comment.body).to.eql("what is going on?");
             });
         });
-        it.only("GET 200 - responds with all comments listed under an article", () => {
+        it("GET 200 - responds with all comments listed under an article", () => {
           return request(app)
             .get("/api/articles/1/comments")
             .expect(200)
@@ -225,7 +341,7 @@ describe("/api", () => {
               });
             });
         });
-        it.only("GET 404 - responds with appropriate error if looking for article that doesn't exist", () => {
+        it("GET 404 - responds with appropriate error if looking for article that doesn't exist", () => {
           return request(app)
             .get("/api/articles/404/comments")
             .expect(404)
@@ -233,7 +349,7 @@ describe("/api", () => {
               expect(response.body.msg).to.eql("404 - not found");
             });
         });
-        it.only("GET 404 - responds with appropriate error when looking for article with no comments", () => {
+        it("GET 404 - responds with appropriate error when looking for article with no comments", () => {
           return request(app)
             .get("/api/articles/3/comments")
             .expect(404)
@@ -241,6 +357,20 @@ describe("/api", () => {
               expect(response.body.msg).to.eql("404 - not found");
             });
         });
+      });
+    });
+  });
+  describe("/comments", () => {
+    describe.only("/:id", () => {
+      it("PATCH 200 - responds with comment object with vote updated by specified amount", () => {
+        return request(app)
+          .patch("/comments/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(response => {
+            expect(response.body.comment).to.be.an("object");
+            expect(response.body.comment.votes).to.eql(17);
+          });
       });
     });
   });

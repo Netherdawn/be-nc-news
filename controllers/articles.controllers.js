@@ -2,7 +2,8 @@ const {
   fetchArticleById,
   updateArticleVotesById,
   createCommentByArticleId,
-  fetchAllCommentsByArticleId
+  fetchAllCommentsByArticleId,
+  fetchAllArticles
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -37,10 +38,19 @@ exports.postCommentByArticleId = (req, res, next) => {
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
-  console.log("in the controller");
   fetchAllCommentsByArticleId(req.params)
     .then(comments => {
       res.send({ comments });
+    })
+    .catch(err => {
+      next(err);
+    });
+};
+
+exports.getAllArticles = (req, res, next) => {
+  fetchAllArticles(req.query)
+    .then(articles => {
+      res.send({ articles });
     })
     .catch(err => {
       next(err);
