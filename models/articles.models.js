@@ -26,3 +26,15 @@ exports.fetchArticleById = articleId => {
     }
   });
 };
+
+exports.updateArticleVotesById = (articleId, votesToChange) => {
+  console.log(votesToChange);
+  if (votesToChange) {
+    return this.fetchArticleById(articleId).then(result => {
+      result.votes += votesToChange;
+      return result;
+    });
+  } else {
+    return Promise.reject({ status: 400, msg: "400 - bad request" });
+  }
+};

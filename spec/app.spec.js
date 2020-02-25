@@ -50,7 +50,7 @@ describe("/api", () => {
     });
   });
   describe("/articles", () => {
-    describe.only("/:id", () => {
+    describe("/:id", () => {
       it("GET 200 - responds with article object that contains information from user & comments", () => {
         return request(app)
           .get("/api/articles/1")
@@ -92,6 +92,61 @@ describe("/api", () => {
           .expect(400)
           .then(response => {
             expect(response.body.msg).to.eql("400 - bad request");
+          });
+      });
+      it("PATCH 200 - responds with article object with vote updated by specified amount", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(response => {
+            expect(response.body.article).to.contain.keys([
+              `author`,
+              `title`,
+              `article_id`,
+              `body`,
+              `topic`,
+              `created_at`,
+              `votes`,
+              `comment_count`
+            ]);
+            expect(response.body.article.votes).to.eql(101);
+          });
+      });
+      it("PATCH 200 - responds with article object with vote updated by specified even if provided a negative integer", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: -1 })
+          .expect(200)
+          .then(response => {
+            expect(response.body.article.votes).to.eql(99);
+          });
+      });
+      it("PATCH 400 - responds with appropriate error message if body sent does not include key value pair inc_votes: integer", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ ind_votes: -1 })
+          .expect(400)
+          .then(response => {
+            expect(response.body.msg).to.eql("400 - bad request");
+          });
+      });
+      it("PATCH 400 - responds with appropriate error message if trying to update article by searching with non-integer article_id", () => {
+        return request(app)
+          .patch("/api/articles/moose")
+          .send({ inc_votes: -1 })
+          .expect(400)
+          .then(response => {
+            expect(response.body.msg).to.eql("400 - bad request");
+          });
+      });
+      it("PATCH 404 - responds with appropriate error message if trying to update article that doesn't exist", () => {
+        return request(app)
+          .patch("/api/articles/212")
+          .send({ inc_votes: -1 })
+          .expect(404)
+          .then(response => {
+            expect(response.body.msg).to.eql("404 - not found");
           });
       });
     });

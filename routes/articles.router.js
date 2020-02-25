@@ -1,6 +1,12 @@
 const articlesRouter = require("express").Router();
-const { getArticleById } = require("../controllers/articles.controllers");
+const {
+  getArticleById,
+  patchArticleVotesById
+} = require("../controllers/articles.controllers");
 
-articlesRouter.get("/:article_id", getArticleById);
+articlesRouter
+  .route("/:article_id")
+  .get(getArticleById)
+  .patch(patchArticleVotesById);
 
 module.exports = articlesRouter;
