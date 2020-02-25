@@ -7,7 +7,7 @@ exports.fetchUserById = username => {
       if (result.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: "404 - user does not exist"
+          msg: "404 - not found"
         });
       } else {
         return result[0];
