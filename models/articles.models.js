@@ -39,7 +39,6 @@ exports.updateArticleVotesById = (articleId, votesToChange) => {
 };
 
 exports.createCommentByArticleId = (articleId, username, body) => {
-  console.log("in the models");
   const commentObj = {
     ...articleId,
     author: username,
@@ -52,4 +51,14 @@ exports.createCommentByArticleId = (articleId, username, body) => {
     .then(comment => {
       return comment[0];
     });
+};
+
+exports.fetchAllCommentsByArticleId = articleId => {
+  return fetchCommentsByArticleId(articleId).then(comments => {
+    if (comments.length === 0) {
+      return Promise.reject({ status: 404, msg: "404 - not found" });
+    } else {
+      return comments;
+    }
+  });
 };

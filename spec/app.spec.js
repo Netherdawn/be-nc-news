@@ -149,10 +149,10 @@ describe("/api", () => {
             expect(response.body.msg).to.eql("404 - not found");
           });
       });
-      describe("/comment", () => {
+      describe.only("/comment", () => {
         it("POST 201 - creates a new row in the comments table and responds with an object with the details of the new row in the comment table", () => {
           return request(app)
-            .post("/api/articles/1/comment")
+            .post("/api/articles/1/comments")
             .send({ username: "butter_bridge", body: "test" })
             .expect(201)
             .then(response => {
@@ -170,7 +170,7 @@ describe("/api", () => {
         });
         it("POST 400 - if request body is a key value pairs, will respond with appropriate error message", () => {
           return request(app)
-            .post("/api/articles/1/comment")
+            .post("/api/articles/1/comments")
             .send({ username: "butter_bridge" })
             .expect(400)
             .then(response => {
@@ -179,7 +179,7 @@ describe("/api", () => {
         });
         it("POST 404 - responds with appropriate error message if trying to add a comment to an article that doesn't exist", () => {
           return request(app)
-            .post("/api/articles/400/comment")
+            .post("/api/articles/400/comments")
             .send({ username: "butter_bridge", body: "what is going on?" })
             .expect(404)
             .then(response => {
@@ -188,7 +188,7 @@ describe("/api", () => {
         });
         it("POST 201 - post request ignores additional key value pairs provided", () => {
           return request(app)
-            .post("/api/articles/1/comment")
+            .post("/api/articles/1/comments")
             .send({
               username: "butter_bridge",
               body: "what is going on?",
@@ -206,6 +206,39 @@ describe("/api", () => {
               ]);
               expect(response.body.comment.comment_id).to.eql(19);
               expect(response.body.comment.body).to.eql("what is going on?");
+            });
+        });
+        it.only("GET 200 - responds with all comments listed under an article", () => {
+          return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(response => {
+              response.body.comments.forEach(comment => {
+                expect(comment).to.contain.keys([
+                  `comment_id`,
+                  `author`,
+                  `article_id`,
+                  `votes`,
+                  `created_at`,
+                  `body`
+                ]);
+              });
+            });
+        });
+        it.only("GET 404 - responds with appropriate error if looking for article that doesn't exist", () => {
+          return request(app)
+            .get("/api/articles/404/comments")
+            .expect(404)
+            .then(response => {
+              expect(response.body.msg).to.eql("404 - not found");
+            });
+        });
+        it.only("GET 404 - responds with appropriate error when looking for article with no comments", () => {
+          return request(app)
+            .get("/api/articles/3/comments")
+            .expect(404)
+            .then(response => {
+              expect(response.body.msg).to.eql("404 - not found");
             });
         });
       });

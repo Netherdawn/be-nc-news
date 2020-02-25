@@ -1,7 +1,8 @@
 const {
   fetchArticleById,
   updateArticleVotesById,
-  createCommentByArticleId
+  createCommentByArticleId,
+  fetchAllCommentsByArticleId
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -25,11 +26,21 @@ exports.patchArticleVotesById = (req, res, next) => {
 };
 
 exports.postCommentByArticleId = (req, res, next) => {
-  console.log("in the controller");
   const { username, body } = req.body;
   createCommentByArticleId(req.params, username, body)
     .then(comment => {
       res.status(201).send({ comment });
+    })
+    .catch(err => {
+      next(err);
+    });
+};
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  console.log("in the controller");
+  fetchAllCommentsByArticleId(req.params)
+    .then(comments => {
+      res.send({ comments });
     })
     .catch(err => {
       next(err);
