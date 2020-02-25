@@ -12,11 +12,17 @@ articlesRouter.get("/", getAllArticles);
 articlesRouter
   .route("/:article_id")
   .get(getArticleById)
-  .patch(patchArticleVotesById);
+  .patch(patchArticleVotesById)
+  .all((req, res, next) => {
+    res.status(404).send({ msg: "405 - not allowed" });
+  });
 
 articlesRouter
   .route("/:article_id/comments")
   .post(postCommentByArticleId)
-  .get(getCommentsByArticleId);
+  .get(getCommentsByArticleId)
+  .all((req, res, next) => {
+    res.status(405).send({ msg: "405 - not allowed" });
+  });
 
 module.exports = articlesRouter;
