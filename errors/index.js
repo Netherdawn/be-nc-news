@@ -11,9 +11,19 @@ exports.customErrors = (err, req, res, next) => {
 exports.psqlErrors = (err, req, res, next) => {
   console.log("in psql errors");
   console.log(err.code);
-  const errCodes = ["22P02", "23502", "42703"];
-  if (errCodes.includes(err.code)) {
-    res.status(400).send({ msg: "400 - bad request" });
+  const template = {
+    badRequest: { status: 400, msg: "400 - bad request" },
+    notFound: { status: 404, msg: "404 - not found" }
+  };
+  const errCodes = {
+    "22P02": template.badRequest,
+    "23502": template.badRequest,
+    "42703": template.badRequest,
+    "23503": template.notFound
+  };
+
+  if (err.code) {
+    res.status(errCodes[err.code].status).send({ msg: errCodes[err.code].msg });
   } else {
     next(err);
   }

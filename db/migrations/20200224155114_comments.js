@@ -8,7 +8,7 @@ exports.up = function(knex) {
       .references("users.username")
       .notNullable();
     commentTable.integer("votes").defaultTo(0);
-    commentTable.timestamp("created_at");
+    commentTable.timestamp("created_at").defaultTo(knex.fn.now());
   });
 };
 

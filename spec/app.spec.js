@@ -149,6 +149,44 @@ describe("/api", () => {
             expect(response.body.msg).to.eql("404 - not found");
           });
       });
+      describe("/comment", () => {
+        it("POST 201 - creates a new row in the comments table and responds with an object with the details of the new row in the comment table", () => {
+          return request(app)
+            .post("/api/articles/1/comment")
+            .send({ username: "butter_bridge", body: "test" })
+            .expect(201)
+            .then(response => {
+              expect(response.body.comment).to.contain.keys([
+                `comment_id`,
+                `author`,
+                `article_id`,
+                `votes`,
+                `created_at`,
+                `body`
+              ]);
+              expect(response.body.comment.comment_id).to.eql(19);
+              expect(response.body.comment.body).to.eql("test");
+            });
+        });
+        it("POST 400 - if request body is a key value pairs, will respond with appropriate error message", () => {
+          return request(app)
+            .post("/api/articles/1/comment")
+            .send({ username: "butter_bridge" })
+            .expect(400)
+            .then(response => {
+              expect(response.body.msg).to.eql("400 - bad request");
+            });
+        });
+        it("POST 400 - responds with appropriate error message if trying to add a comment to an article that doesn't exist", () => {
+          return request(app)
+            .post("/api/articles/400/comment")
+            .send({ username: "butter_bridge", body: "what is going on?" })
+            .expect(400)
+            .then(response => {
+              expect(response.body.msg).to.eql("400 - bad request");
+            });
+        });
+      });
     });
   });
 });

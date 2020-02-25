@@ -4,14 +4,14 @@ const fetchCommentsByArticleId = articleId => {
   //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
   return connection("comments")
     .where(articleId)
-    .then(result => result);
+    .then(comments => comments);
 };
 
 const fetchArticleObjectById = articleId => {
   //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
   return connection("articles")
     .where(articleId)
-    .then(result => result[0]);
+    .then(article => article[0]);
 };
 
 exports.fetchArticleById = articleId => {
@@ -30,11 +30,27 @@ exports.fetchArticleById = articleId => {
 exports.updateArticleVotesById = (articleId, votesToChange) => {
   console.log(votesToChange);
   if (votesToChange) {
-    return this.fetchArticleById(articleId).then(result => {
-      result.votes += votesToChange;
-      return result;
+    return this.fetchArticleById(articleId).then(article => {
+      article.votes += votesToChange;
+      return article;
     });
   } else {
     return Promise.reject({ status: 400, msg: "400 - bad request" });
   }
+};
+
+exports.createCommentByArticleId = (articleId, username, body) => {
+  console.log("in the models");
+  const commentObj = {
+    ...articleId,
+    author: username,
+    body: body
+  };
+  console.log(commentObj);
+  return connection("comments")
+    .insert(commentObj)
+    .returning("*")
+    .then(comment => {
+      return comment[0];
+    });
 };
