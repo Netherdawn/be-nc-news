@@ -256,7 +256,7 @@ describe("/api", () => {
             });
         });
       });
-      describe.only("PATCH", () => {
+      describe("PATCH", () => {
         it("PATCH 200 - responds with article object with vote updated by specified amount", () => {
           return request(app)
             .patch("/api/articles/1")
@@ -393,7 +393,7 @@ describe("/api", () => {
               });
           });
         });
-        describe("GET", () => {
+        describe.only("GET", () => {
           it("GET 200 - responds with all comments listed under an article", () => {
             return request(app)
               .get("/api/articles/1/comments")
@@ -419,12 +419,12 @@ describe("/api", () => {
                 expect(response.body.msg).to.eql("404 - not found");
               });
           });
-          it("GET 404 - responds with appropriate error when looking for article with no comments", () => {
+          it("GET 200 - responds with appropriate error when looking for article with no comments", () => {
             return request(app)
               .get("/api/articles/3/comments")
-              .expect(404)
+              .expect(200)
               .then(response => {
-                expect(response.body.msg).to.eql("404 - not found");
+                expect(response.body.comments.length).to.eql(0);
               });
           });
         });

@@ -2,6 +2,16 @@ const connection = require("../db/connect");
 
 // models for other models / middleware <<<<<<<<<<<<<<<<<<<<<<<
 
+const fetchCommentsByArticleId = queryObj => {
+  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
+  return connection("comments")
+    .where("article_id", queryObj.article_id)
+    .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
+    .then(comments => {
+      return comments;
+    });
+};
+
 const queryBuilder = queryObj => {
   let searchTermsObj = { ...queryObj };
   delete searchTermsObj.sort_by;
@@ -88,10 +98,6 @@ exports.fetchArticleById = articleId => {
 
 // model for PATCH / articles/:article_id (increasing votes) <<<<<<<<<<<<<<<<<<<<<<<
 
-// exports.updateArticleVotesById = (articleId, votesToChange) => {
-//   if (typeOf votesToChange === 'number')
-// }
-
 exports.updateArticleVotesById = (articleId, votesToChange) => {
   if (
     (typeof votesToChange === "number" && votesToChange !== NaN) ||
@@ -126,21 +132,18 @@ exports.createCommentByArticleId = (articleId, username, body) => {
     });
 };
 
-exports.fetchAllCommentsByArticleId = articleId => {
-  return fetchCommentsByArticleId(articleId).then(comments => {
-    if (comments.length === 0) {
-      return Promise.reject({ status: 404, msg: "404 - not found" });
-    } else {
-      return comments;
-    }
-  });
-};
+// model for GET /articles/:article_id/comments <<<<<<<<<<<<<<<<<<<<<<<
+exports.fetchAllCommentsByArticleId = (articleId, queryObj) => {
+  const searchTermsObj = { ...articleId };
+  searchTermsObj.sort_by = queryObj.sort_by;
+  searchTermsObj.order = queryObj.sort_by;
 
-const fetchCommentsByArticleId = articleId => {
-  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
-  return connection("comments")
-    .where(articleId)
-    .then(comments => comments);
+  return Promise.all([
+    fetchCommentsByArticleId(searchTermsObj),
+    doesItExist("articles", "article_id", articleId.article_id)
+  ]).then(([result]) => {
+    return result;
+  });
 };
 
 const fetchArticleObjectById = articleId => {
