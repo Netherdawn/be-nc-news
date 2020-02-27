@@ -51,8 +51,8 @@ exports.updateCommentVotesById = (commentId, votesToChange) => {
 exports.removeCommentById = commentId => {
   return connection("comments")
     .where(commentId)
-    .then(result => {
-      if (result.length === 0) {
+    .then(comment => {
+      if (comment.length === 0) {
         return Promise.reject({ status: 404, msg: "404 - not found" });
       } else {
         return connection("comments")
