@@ -3,6 +3,7 @@ const {
   removeCommentById
 } = require("../models/comments.models");
 
+// pathway PATCH /api/comments/:comment_id
 exports.patchCommentVotesById = (req, res, next) => {
   updateCommentVotesById(req.params, req.body.inc_votes)
     .then(comment => {
@@ -12,6 +13,8 @@ exports.patchCommentVotesById = (req, res, next) => {
       next(err);
     });
 };
+
+// pathway DELETE /api/comments/:comment_id
 exports.deleteCommentById = (req, res, next) => {
   removeCommentById(req.params)
     .then(() => {
