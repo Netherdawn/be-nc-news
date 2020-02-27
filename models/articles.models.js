@@ -3,6 +3,7 @@ const connection = require("../db/connect");
 // models for other models / middleware <<<<<<<<<<<<<<<<<<<<<<<
 
 const fetchCommentsByArticleId = queryObj => {
+  console.log(queryObj);
   return connection("comments")
     .where("article_id", queryObj.article_id)
     .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
@@ -57,8 +58,8 @@ const fetchEveryArticle = queryObj => {
     .groupBy("articles.article_id")
     .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
     .where(searchTermsObj)
-    .then(results => {
-      return results;
+    .then(articles => {
+      return articles;
     });
 };
 
@@ -79,8 +80,8 @@ exports.fetchAllArticles = queryObj => {
     fetchEveryArticle(queryObj),
     doesItExist("users", "username", author),
     doesItExist("topics", "slug", slug)
-  ]).then(([result, doesUserExist, doesTopicExist]) => {
-    return result;
+  ]).then(([articles, doesUserExist, doesTopicExist]) => {
+    return articles;
   });
 };
 
@@ -90,8 +91,8 @@ exports.fetchArticleById = articleId => {
   return Promise.all([
     fetchEveryArticle(articleId),
     doesItExist("articles", "article_id", articleId.article_id)
-  ]).then(([result]) => {
-    return result[0];
+  ]).then(([articles]) => {
+    return articles[0];
   });
 };
 
@@ -136,12 +137,12 @@ exports.createCommentByArticleId = (articleId, username, body) => {
 exports.fetchAllCommentsByArticleId = (articleId, queryObj) => {
   const searchTermsObj = { ...articleId };
   searchTermsObj.sort_by = queryObj.sort_by;
-  searchTermsObj.order = queryObj.sort_by;
+  searchTermsObj.order = queryObj.order;
 
   return Promise.all([
     fetchCommentsByArticleId(searchTermsObj),
     doesItExist("articles", "article_id", articleId.article_id)
-  ]).then(([result]) => {
-    return result;
+  ]).then(([comments]) => {
+    return comments;
   });
 };

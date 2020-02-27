@@ -12,7 +12,7 @@ describe("/api", () => {
     return knex.seed.run();
   });
   describe("GET", () => {
-    it.only("GET 200 - responds with json of all endpoints", () => {
+    it("GET 200 - responds with json of all endpoints", () => {
       return request(app)
         .get("/api")
         .expect(200)
@@ -418,6 +418,50 @@ describe("/api", () => {
                     `created_at`,
                     `body`
                   ]);
+                });
+              });
+          });
+          it("GET 200 - is sorted by created_at column and ordered descending by default", () => {
+            return request(app)
+              .get("/api/articles/1/comments")
+              .expect(200)
+              .then(response => {
+                expect(response.body.comments).to.be.an("array");
+                expect(response.body.comments).to.be.sortedBy("created_at", {
+                  descending: true
+                });
+              });
+          });
+          it("GET 200 - can be sorted by query and is ordered desc by default", () => {
+            return request(app)
+              .get("/api/articles/1/comments?sort_by=votes")
+              .expect(200)
+              .then(response => {
+                expect(response.body.comments).to.be.an("array");
+                expect(response.body.comments).to.be.sortedBy("votes", {
+                  descending: true
+                });
+              });
+          });
+          it("GET 200 - can be ordered by query and is sorted by created_at by default", () => {
+            return request(app)
+              .get("/api/articles/1/comments?order=asc")
+              .expect(200)
+              .then(response => {
+                expect(response.body.comments).to.be.an("array");
+                expect(response.body.comments).to.be.sortedBy("created_at", {
+                  descending: false
+                });
+              });
+          });
+          it("GET 200 - can be ordered and sorted by query", () => {
+            return request(app)
+              .get("/api/articles/1/comments?order=asc&sort_by=votes")
+              .expect(200)
+              .then(response => {
+                expect(response.body.comments).to.be.an("array");
+                expect(response.body.comments).to.be.sortedBy("votes", {
+                  descending: false
                 });
               });
           });
