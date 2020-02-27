@@ -1,6 +1,6 @@
 const connection = require("../db/connect");
 
-// models for /articles + any queries <<<<<<<<<<<<<<<<<<<<<<<
+// models for other models / middleware <<<<<<<<<<<<<<<<<<<<<<<
 
 const queryBuilder = queryObj => {
   let searchTermsObj = { ...queryObj };
@@ -53,6 +53,8 @@ const fetchEveryArticle = queryObj => {
     });
 };
 
+// models for /articles + any queries <<<<<<<<<<<<<<<<<<<<<<<
+
 exports.fetchAllArticles = queryObj => {
   let author;
   let slug;
@@ -76,7 +78,6 @@ exports.fetchAllArticles = queryObj => {
 // models for /articles/:article_id <<<<<<<<<<<<<<<<<<<<<<<
 
 exports.fetchArticleById = articleId => {
-  console.log(articleId.article_id);
   return Promise.all([
     fetchEveryArticle(articleId),
     doesItExist("articles", "article_id", articleId.article_id)
@@ -85,30 +86,17 @@ exports.fetchArticleById = articleId => {
   });
 };
 
-// exports.fetchArticleByIdOld = articleId => {
-//   return Promise.all([
-//     fetchCommentsByArticleId(articleId),
-//     fetchArticleObjectById(articleId)
-//   ]).then(([commentArray, article]) => {
-//     if (article === undefined) {
-//       return Promise.reject({ status: 404, msg: "404 - not found" });
-//     } else {
-//       return { ...article, comment_count: commentArray.length };
-//     }
-//   });
-// };
-
 // Needs organising <<<<<<<<<<<<<<<<<<<<<<<
 
 exports.updateArticleVotesById = (articleId, votesToChange) => {
-  if (votesToChange) {
-    return this.fetchArticleById(articleId).then(article => {
-      article.votes += votesToChange;
+  return this.fetchArticleById(articleId).then(article => {
+    if (votesToChange) {
+      article.votes += votesToChange || 0;
       return article;
-    });
-  } else {
-    return Promise.reject({ status: 400, msg: "400 - bad request" });
-  }
+    } else {
+      return article;
+    }
+  });
 };
 
 exports.createCommentByArticleId = (articleId, username, body) => {

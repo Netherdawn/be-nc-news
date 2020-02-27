@@ -211,7 +211,7 @@ describe("/api", () => {
       });
     });
     describe("/:id", () => {
-      describe.only("GET", () => {
+      describe("GET", () => {
         it("GET 200 - responds with article object that contains information from user & comments", () => {
           return request(app)
             .get("/api/articles/1")
@@ -256,7 +256,7 @@ describe("/api", () => {
             });
         });
       });
-      describe("PATCH", () => {
+      describe.only("PATCH", () => {
         it("PATCH 200 - responds with article object with vote updated by specified amount", () => {
           return request(app)
             .patch("/api/articles/1")
@@ -285,13 +285,23 @@ describe("/api", () => {
               expect(response.body.article.votes).to.eql(99);
             });
         });
-        it("PATCH 400 - responds with appropriate error message if body sent does not include key value pair inc_votes: integer", () => {
+        it("PATCH 200 - responds with returns unchanged article if body provided does not include key value pair inc_votes & integer", () => {
           return request(app)
             .patch("/api/articles/1")
             .send({ ind_votes: -1 })
-            .expect(400)
+            .expect(200)
             .then(response => {
-              expect(response.body.msg).to.eql("400 - bad request");
+              expect(response.body.article).to.have.all.keys([
+                `author`,
+                `title`,
+                `article_id`,
+                `body`,
+                `topic`,
+                `created_at`,
+                `votes`,
+                `comment_count`
+              ]);
+              expect(response.body.article.votes).to.eql(100);
             });
         });
         it("PATCH 400 - responds with appropriate error message if trying to update article by searching with non-integer article_id", () => {

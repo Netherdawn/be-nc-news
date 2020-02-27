@@ -11,7 +11,7 @@ articlesRouter
   .route("/")
   .get(getAllArticles)
   .all((req, res, next) => {
-    res.status(404).send({ msg: "405 - not allowed" });
+    res.status(405).send({ msg: "405 - not allowed" });
   });
 
 articlesRouter
@@ -19,7 +19,7 @@ articlesRouter
   .get(getArticleById)
   .patch(patchArticleVotesById)
   .all((req, res, next) => {
-    res.status(404).send({ msg: "405 - not allowed" });
+    res.status(405).send({ msg: "405 - not allowed" });
   });
 
 articlesRouter
