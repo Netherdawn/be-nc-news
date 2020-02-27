@@ -54,7 +54,7 @@ describe("/api", () => {
     });
   });
   describe("/articles", () => {
-    describe("GET", () => {
+    describe.only("GET", () => {
       it("GET 200 - responds with an array of articles", () => {
         return request(app)
           .get("/api/articles")
@@ -130,6 +130,30 @@ describe("/api", () => {
             });
           });
       });
+      it("GET 200 - responds with an empty array of articles queried by author who has no articles", () => {
+        return request(app)
+          .get("/api/articles?author=lurker")
+          .expect(200)
+          .then(response => {
+            response.body.articles.forEach(article => {
+              expect(response.body.articles).to.be.an("array");
+              expect(response.body.articles.length).to.eql(0);
+              expect(article.author).to.eql("lurker");
+            });
+          });
+      });
+      it("GET 200 - responds with an empty array of articles queried by topic that has no articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(response => {
+            expect(response.body.articles).to.be.an("array");
+            expect(response.body.articles.length).to.eql(0);
+            response.body.articles.forEach(article => {
+              expect(article.topic).to.eql("paper");
+            });
+          });
+      });
       it("GET 200 - responds with an array of articles queried by topic", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
@@ -153,12 +177,28 @@ describe("/api", () => {
             });
           });
       });
-      it("GET 404 - responds with appropriate error if looking for a column that doesn't exist", () => {
+      it("GET 404 - responds with appropriate error if looking for a row that doesn't exist queried by author", () => {
         return request(app)
-          .get("/api/articles?topic=testy")
+          .get("/api/articles?author=test")
           .expect(404)
           .then(response => {
             expect(response.body.msg).to.eql("404 - not found");
+          });
+      });
+      it("GET 404 - responds with appropriate error if looking for a row that doesn't exist queried by topic", () => {
+        return request(app)
+          .get("/api/articles?topic=test")
+          .expect(404)
+          .then(response => {
+            expect(response.body.msg).to.eql("404 - not found");
+          });
+      });
+      it("GET 400 - responds with appropriate error if looking for a column that doesn't exist", () => {
+        return request(app)
+          .get("/api/articles?tic=testy")
+          .expect(400)
+          .then(response => {
+            expect(response.body.msg).to.eql("400 - bad request");
           });
       });
       it("GET 400 - responds with appropriate error if searching a column with incorrect data type", () => {
@@ -404,19 +444,28 @@ describe("/api", () => {
               expect(response.body.comment.votes).to.eql(-34);
             });
         });
-        it("PATCH 400 - responds with appropriate error message if body sent does not include key value pair inc_votes: integer", () => {
+        it("PATCH 200 - does not increase vote if does not include key value pair inc_votes: integer", () => {
           return request(app)
             .patch("/api/comments/1")
             .send({ ind_votes: -1 })
-            .expect(400)
+            .expect(200)
             .then(response => {
-              expect(response.body.msg).to.eql("400 - bad request");
+              expect(response.body.comment.votes).to.eql(16);
             });
         });
         it("PATCH 400 - responds with appropriate error message if trying to update article by searching with non-integer comment_id", () => {
           return request(app)
             .patch("/api/comments/carabou")
             .send({ inc_votes: -1 })
+            .expect(400)
+            .then(response => {
+              expect(response.body.msg).to.eql("400 - bad request");
+            });
+        });
+        it("PATCH 400 - responds with appropriate error message if trying to update votes with wrong data-type", () => {
+          return request(app)
+            .patch("/api/comments/1")
+            .send({ inc_votes: "elk" })
             .expect(400)
             .then(response => {
               expect(response.body.msg).to.eql("400 - bad request");

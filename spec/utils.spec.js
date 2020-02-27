@@ -4,6 +4,7 @@ const {
   makeRefObj,
   formatComments
 } = require("../db/utils/utils");
+const { doesItExist } = require("../models/utils");
 
 describe("formatDates", () => {
   it("If passed an empty array, will return an empty array", () => {

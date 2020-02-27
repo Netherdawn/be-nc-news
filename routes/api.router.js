@@ -3,10 +3,14 @@ const topicsRouter = require("./topics.router");
 const usersRouter = require("./users.router");
 const articlesRouter = require("./articles.router");
 const commentsRouter = require("./comments.router");
+const { getApiRoutes } = require("../controllers/api.controllers");
 
-apiRouter.route("/").all((req, res, next) => {
-  res.status(405).send({ msg: "405 - not allowed" });
-});
+apiRouter
+  .route("/")
+  .get()
+  .all((req, res, next) => {
+    res.status(405).send({ msg: "405 - not allowed" });
+  });
 
 apiRouter.use("/topics", topicsRouter);
 

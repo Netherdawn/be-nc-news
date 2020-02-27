@@ -1,54 +1,82 @@
 const connection = require("../db/connect");
 
-const fetchCommentsByArticleId = articleId => {
-  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
-  return connection("comments")
-    .where(articleId)
-    .then(comments => comments);
-};
+// models for /articles + any queries
 
-const fetchArticleObjectById = articleId => {
-  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
-  return connection("articles")
-    .where(articleId)
-    .then(article => article[0]);
-};
-
-const articleCommentRef = () => {
-  return connection("comments")
-    .select("article_id")
-    .count("article_id")
-    .groupBy("article_id")
-    .then(result => {
-      let commentRefObj = {};
-      result.forEach(element => {
-        commentRefObj[element.article_id] = element.count;
-      });
-      return commentRefObj;
-    });
-};
-
-const fetchEveryArticle = queryObj => {
+const queryBuilder = queryObj => {
   let searchTermsObj = { ...queryObj };
   delete searchTermsObj.sort_by;
   delete searchTermsObj.order;
+
   if (Object.keys(searchTermsObj).length === 0) {
-    searchTermsObj = true;
+    return true;
   }
 
-  return connection("articles")
-    .select("*")
-    .where(searchTermsObj)
-    .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
-    .then(articles => {
-      if (articles.length === 0) {
-        return Promise.reject({ status: 404, msg: "404 - not found" });
+  if (Object.keys(searchTermsObj).includes("author")) {
+    searchTermsObj["articles.author"] = searchTermsObj.author;
+    delete searchTermsObj.author;
+  } else if (Object.keys(searchTermsObj).includes("article_id")) {
+    searchTermsObj["articles.article_id"] = searchTermsObj.article_id;
+    delete searchTermsObj.article_id;
+  }
+  return searchTermsObj;
+};
+
+const doesItExist = (table, column, row) => {
+  console.log(table);
+  console.log("doesItExist");
+  return connection(table)
+    .select(column)
+    .modify(queryBuilder => {
+      if (row) {
+        queryBuilder.where(column, row);
+      }
+    })
+    .then(result => {
+      if (result.length > 0) {
+        return true;
       } else {
-        return articles;
+        return Promise.reject({ status: 404, msg: "404 - not found" });
       }
     });
 };
 
+const fetchEveryArticle = queryObj => {
+  const searchTermsObj = queryBuilder(queryObj);
+
+  return connection("articles")
+    .count({ comment_count: "comments.article_id" })
+    .select("articles.*")
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .groupBy("articles.article_id")
+    .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
+    .where(searchTermsObj)
+    .then(results => {
+      return results;
+    });
+};
+
+exports.fetchAllArticles = queryObj => {
+  let author;
+  let slug;
+
+  if (queryObj.author) {
+    author = queryObj.author;
+  }
+  if (queryObj.topic) {
+    slug = queryObj.topic;
+  }
+
+  return Promise.all([
+    fetchEveryArticle(queryObj),
+    doesItExist("users", "username", author),
+    doesItExist("topics", "slug", slug)
+  ]).then(([result, doesUserExist, doesTopicExist]) => {
+    console.log("made it out of the Promise All");
+    return result;
+  });
+};
+
+// Needs organising
 exports.fetchArticleById = articleId => {
   return Promise.all([
     fetchCommentsByArticleId(articleId),
@@ -97,17 +125,22 @@ exports.fetchAllCommentsByArticleId = articleId => {
   });
 };
 
-exports.fetchAllArticles = queryObj => {
-  return Promise.all([fetchEveryArticle(queryObj), articleCommentRef()]).then(
-    ([articles, refObj]) => {
-      articles.forEach(article => {
-        if (refObj[article.article_id]) {
-          article.comment_count = refObj[article.article_id];
-        } else {
-          article.comment_count = 0;
-        }
-      });
-      return articles;
-    }
-  );
+const fetchCommentsByArticleId = articleId => {
+  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
+  return connection("comments")
+    .where(articleId)
+    .then(comments => comments);
+};
+
+const fetchArticleObjectById = articleId => {
+  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
+  return connection("articles")
+    .where(articleId)
+    .then(article => {
+      if (article.length === 0) {
+        return Promise.reject({ status: 404, msg: "404 - not found" });
+      } else {
+        return article[0];
+      }
+    });
 };

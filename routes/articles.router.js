@@ -7,7 +7,12 @@ const {
   getAllArticles
 } = require("../controllers/articles.controllers");
 
-articlesRouter.get("/", getAllArticles);
+articlesRouter
+  .route("/")
+  .get(getAllArticles)
+  .all((req, res, next) => {
+    res.status(404).send({ msg: "405 - not allowed" });
+  });
 
 articlesRouter
   .route("/:article_id")

@@ -56,3 +56,13 @@ exports.getAllArticles = (req, res, next) => {
       next(err);
     });
 };
+
+// exports.getAllArticles = (req, res, next) => {
+//   fetchEveryArticleNew(req.query)
+//     .then(articles => {
+//       res.send({ articles });
+//     })
+//     .catch(err => {
+//       next(err);
+//     });
+// };

@@ -2,7 +2,7 @@ const usersRouter = require("express").Router();
 const { getUserById } = require("../controllers/users.controllers");
 
 usersRouter
-  .route("/usernmae")
+  .route("/:username")
   .get(getUserById)
   .all((req, res, next) => {
     res.status(405).send({ msg: "405 - not allowed" });
