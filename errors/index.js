@@ -1,6 +1,5 @@
 exports.customErrors = (err, req, res, next) => {
   console.log("in custom errors");
-  console.log(err);
   console.log(err.status);
   if (err.status != undefined) {
     res.status(err.status).send({ msg: err.msg });

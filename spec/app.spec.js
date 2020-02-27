@@ -54,7 +54,7 @@ describe("/api", () => {
     });
   });
   describe("/articles", () => {
-    describe.only("GET", () => {
+    describe("GET", () => {
       it("GET 200 - responds with an array of articles", () => {
         return request(app)
           .get("/api/articles")
@@ -211,7 +211,7 @@ describe("/api", () => {
       });
     });
     describe("/:id", () => {
-      describe("GET", () => {
+      describe.only("GET", () => {
         it("GET 200 - responds with article object that contains information from user & comments", () => {
           return request(app)
             .get("/api/articles/1")
@@ -236,7 +236,7 @@ describe("/api", () => {
             .expect(200)
             .then(response => {
               expect(response.body.article).to.be.an("object");
-              expect(response.body.article.comment_count).to.eql(0);
+              expect(response.body.article.comment_count).to.eql("0");
             });
         });
         it("GET 404 - responds with appropriate error message when asked for article that doesn't exist", () => {

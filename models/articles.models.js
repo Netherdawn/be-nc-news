@@ -1,6 +1,6 @@
 const connection = require("../db/connect");
 
-// models for /articles + any queries
+// models for /articles + any queries <<<<<<<<<<<<<<<<<<<<<<<
 
 const queryBuilder = queryObj => {
   let searchTermsObj = { ...queryObj };
@@ -22,8 +22,6 @@ const queryBuilder = queryObj => {
 };
 
 const doesItExist = (table, column, row) => {
-  console.log(table);
-  console.log("doesItExist");
   return connection(table)
     .select(column)
     .modify(queryBuilder => {
@@ -71,24 +69,36 @@ exports.fetchAllArticles = queryObj => {
     doesItExist("users", "username", author),
     doesItExist("topics", "slug", slug)
   ]).then(([result, doesUserExist, doesTopicExist]) => {
-    console.log("made it out of the Promise All");
     return result;
   });
 };
 
-// Needs organising
+// models for /articles/:article_id <<<<<<<<<<<<<<<<<<<<<<<
+
 exports.fetchArticleById = articleId => {
+  console.log(articleId.article_id);
   return Promise.all([
-    fetchCommentsByArticleId(articleId),
-    fetchArticleObjectById(articleId)
-  ]).then(([commentArray, article]) => {
-    if (article === undefined) {
-      return Promise.reject({ status: 404, msg: "404 - not found" });
-    } else {
-      return { ...article, comment_count: commentArray.length };
-    }
+    fetchEveryArticle(articleId),
+    doesItExist("articles", "article_id", articleId.article_id)
+  ]).then(([result]) => {
+    return result[0];
   });
 };
+
+// exports.fetchArticleByIdOld = articleId => {
+//   return Promise.all([
+//     fetchCommentsByArticleId(articleId),
+//     fetchArticleObjectById(articleId)
+//   ]).then(([commentArray, article]) => {
+//     if (article === undefined) {
+//       return Promise.reject({ status: 404, msg: "404 - not found" });
+//     } else {
+//       return { ...article, comment_count: commentArray.length };
+//     }
+//   });
+// };
+
+// Needs organising <<<<<<<<<<<<<<<<<<<<<<<
 
 exports.updateArticleVotesById = (articleId, votesToChange) => {
   if (votesToChange) {
