@@ -313,6 +313,15 @@ describe("/api", () => {
               expect(response.body.msg).to.eql("400 - bad request");
             });
         });
+        it("PATCH 400 - responds with appropriate error message if trying to increase votes with a non-integer", () => {
+          return request(app)
+            .patch("/api/articles/1")
+            .send({ inc_votes: "moose" })
+            .expect(400)
+            .then(response => {
+              expect(response.body.msg).to.eql("400 - bad request");
+            });
+        });
         it("PATCH 404 - responds with appropriate error message if trying to update article that doesn't exist", () => {
           return request(app)
             .patch("/api/articles/212")

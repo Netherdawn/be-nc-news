@@ -53,7 +53,7 @@ const fetchEveryArticle = queryObj => {
     });
 };
 
-// models for /articles + any queries <<<<<<<<<<<<<<<<<<<<<<<
+// model for GET /articles + any queries <<<<<<<<<<<<<<<<<<<<<<<
 
 exports.fetchAllArticles = queryObj => {
   let author;
@@ -75,7 +75,7 @@ exports.fetchAllArticles = queryObj => {
   });
 };
 
-// models for /articles/:article_id <<<<<<<<<<<<<<<<<<<<<<<
+// model for GET /articles/:article_id <<<<<<<<<<<<<<<<<<<<<<<
 
 exports.fetchArticleById = articleId => {
   return Promise.all([
@@ -86,18 +86,31 @@ exports.fetchArticleById = articleId => {
   });
 };
 
-// Needs organising <<<<<<<<<<<<<<<<<<<<<<<
+// model for PATCH / articles/:article_id (increasing votes) <<<<<<<<<<<<<<<<<<<<<<<
+
+// exports.updateArticleVotesById = (articleId, votesToChange) => {
+//   if (typeOf votesToChange === 'number')
+// }
 
 exports.updateArticleVotesById = (articleId, votesToChange) => {
-  return this.fetchArticleById(articleId).then(article => {
-    if (votesToChange) {
-      article.votes += votesToChange || 0;
-      return article;
-    } else {
-      return article;
-    }
-  });
+  if (
+    (typeof votesToChange === "number" && votesToChange !== NaN) ||
+    votesToChange === undefined
+  ) {
+    return this.fetchArticleById(articleId).then(article => {
+      if (votesToChange) {
+        article.votes += votesToChange || 0;
+        return article;
+      } else {
+        return article;
+      }
+    });
+  } else {
+    return Promise.reject({ status: 400, msg: "400 - bad request" });
+  }
 };
+
+// Needs organising <<<<<<<<<<<<<<<<<<<<<<<
 
 exports.createCommentByArticleId = (articleId, username, body) => {
   const commentObj = {
