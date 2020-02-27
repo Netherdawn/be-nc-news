@@ -10,18 +10,121 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
+          "article_id": 1,
           "title": "Seafood substitutions are increasing",
           "topic": "cooking",
           "author": "weegembump",
           "body": "Text from the article..",
-          "created_at": 1527695953341
+          "created_at": "Wed May 30 2018 16:59:13 GMT+0100",
+          "comment_count": "20",
+          "votes": 12
         }
       ]
+    }
+  },
+  "GET /api/articles/:article_id/": {
+    "description": "serves an object of an article as specified in path",
+    ":article_id": "integer",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Seafood substitutions are increasing",
+        "topic": "cooking",
+        "author": "weegembump",
+        "body": "Text from the article..",
+        "created_at": "Wed May 30 2018 16:59:13 GMT+0100",
+        "comment_count": "20",
+        "votes": 12
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id/": {
+    "description": "updates the votes of an object of an article as specified in path",
+    ":article_id": "integer",
+    "exampleRequestBody": { "inc_votes": 1 },
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Seafood substitutions are increasing",
+        "topic": "cooking",
+        "author": "weegembump",
+        "body": "Text from the article..",
+        "created_at": "Wed May 30 2018 16:59:13 GMT+0100",
+        "comment_count": "20",
+        "votes": 13
+      }
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "creates a new comment referenced to article as specified in path",
+    ":article_id": "integer",
+    "exampleRequestBody": {
+      "username": "Example",
+      "body": "I am a example comment"
+    },
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 2,
+        "votes": 0,
+        "created_at": "Thu Feb 27 2020 12:37:40 GMT+0000",
+        "author": "Example",
+        "body": "I am a example comment"
+      }
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of all comments listed to an article as specified in pathway",
+    ":article_id": "integer",
+    "queries": ["sort_by", "order"],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "votes": 1,
+          "created_at": "Wed May 30 2018 16:59:13 GMT+0100",
+          "author": "Username",
+          "body": "A comment"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "removes a comment  as specified in pathway",
+    "comment_id": "integer"
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "updates the votes of an object of a comment as specified in path",
+    ":comment_id": "integer",
+    "exampleRequestBody": { "inc_votes": 1 },
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 1,
+        "votes": 2,
+        "created_at": "Wed May 30 2018 16:59:13 GMT+0100",
+        "author": "Username",
+        "body": "A comment"
+      }
+    }
+  },
+  "GET /api/users/:username": {
+    "desription": "servers an object of a user as specified in path",
+    ":username": "string;",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "username": "userExample",
+        "name": "example",
+        "avatar_url": "example_url"
+      }
     }
   }
 }
