@@ -11,6 +11,16 @@ describe("/api", () => {
   beforeEach(() => {
     return knex.seed.run();
   });
+  describe("GET", () => {
+    it.only("GET 200 - responds with json of all endpoints", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(response => {
+          expect(response.body).to.be.an("object");
+        });
+    });
+  });
   describe("/topics", () => {
     describe("GET", () => {
       it("GET 200 - responds with all topics", () => {
