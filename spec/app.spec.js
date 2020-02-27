@@ -393,7 +393,7 @@ describe("/api", () => {
               });
           });
         });
-        describe.only("GET", () => {
+        describe("GET", () => {
           it("GET 200 - responds with all comments listed under an article", () => {
             return request(app)
               .get("/api/articles/1/comments")

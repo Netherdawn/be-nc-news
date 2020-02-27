@@ -3,7 +3,6 @@ const connection = require("../db/connect");
 // models for other models / middleware <<<<<<<<<<<<<<<<<<<<<<<
 
 const fetchCommentsByArticleId = queryObj => {
-  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
   return connection("comments")
     .where("article_id", queryObj.article_id)
     .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
@@ -116,7 +115,7 @@ exports.updateArticleVotesById = (articleId, votesToChange) => {
   }
 };
 
-// Needs organising <<<<<<<<<<<<<<<<<<<<<<<
+// model for POST /articles/:article_id/comments <<<<<<<<<<<<<<<<<<<<<<<
 
 exports.createCommentByArticleId = (articleId, username, body) => {
   const commentObj = {
@@ -133,6 +132,7 @@ exports.createCommentByArticleId = (articleId, username, body) => {
 };
 
 // model for GET /articles/:article_id/comments <<<<<<<<<<<<<<<<<<<<<<<
+
 exports.fetchAllCommentsByArticleId = (articleId, queryObj) => {
   const searchTermsObj = { ...articleId };
   searchTermsObj.sort_by = queryObj.sort_by;
@@ -144,17 +144,4 @@ exports.fetchAllCommentsByArticleId = (articleId, queryObj) => {
   ]).then(([result]) => {
     return result;
   });
-};
-
-const fetchArticleObjectById = articleId => {
-  //articleId arg must be provided as an object with keyvalue pair {article_id:integer}
-  return connection("articles")
-    .where(articleId)
-    .then(article => {
-      if (article.length === 0) {
-        return Promise.reject({ status: 404, msg: "404 - not found" });
-      } else {
-        return article[0];
-      }
-    });
 };
