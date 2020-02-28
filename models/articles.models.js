@@ -105,6 +105,7 @@ exports.updateArticleVotesById = (articleIdObj, votesToChange) => {
     return this.fetchArticleById(articleIdObj).then(article => {
       if (votesToChange) {
         article.votes += votesToChange || 0;
+
         return article;
       } else {
         return article;

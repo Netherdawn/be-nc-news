@@ -487,7 +487,7 @@ describe("/api", () => {
   });
   describe("/comments", () => {
     describe("/:id", () => {
-      describe("PATCH", () => {
+      describe.only("PATCH", () => {
         it("PATCH 200 - responds with comment object with vote updated by specified amount", () => {
           return request(app)
             .patch("/api/comments/1")
