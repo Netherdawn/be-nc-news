@@ -87,10 +87,10 @@ exports.fetchAllArticles = queryObj => {
 
 // model for GET /articles/:article_id <<<<<<<<<<<<<<<<<<<<<<<
 
-exports.fetchArticleById = articleId => {
+exports.fetchArticleById = articleIdObj => {
   return Promise.all([
-    fetchEveryArticle(articleId),
-    doesItExist("articles", "article_id", articleId.article_id)
+    fetchEveryArticle(articleIdObj),
+    doesItExist("articles", "article_id", articleIdObj.article_id)
   ]).then(([articles]) => {
     return articles[0];
   });
@@ -118,9 +118,9 @@ exports.updateArticleVotesById = (articleId, votesToChange) => {
 
 // model for POST /articles/:article_id/comments <<<<<<<<<<<<<<<<<<<<<<<
 
-exports.createCommentByArticleId = (articleId, username, body) => {
+exports.createCommentByArticleId = (articleIdObj, username, body) => {
   const commentObj = {
-    ...articleId,
+    ...articleIdObj,
     author: username,
     body: body
   };
