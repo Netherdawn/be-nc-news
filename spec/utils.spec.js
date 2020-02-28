@@ -9,13 +9,13 @@ describe("formatDates", () => {
   it("If passed an empty array, will return an empty array", () => {
     expect(formatDates([])).to.eql([]);
   });
-  it("If passed an array of a single item with only unix date, will return simple array with date swapped for valid string date", () => {
+  it("If passed an array of a single item with only unix date, will return array with element's date swapped for valid string date", () => {
     const input = [{ created_at: 1542284514171 }];
     expect(formatDates(input)).to.eql([
       { created_at: "Thu, 15 Nov 2018 12:21:54 GMT" }
     ]);
   });
-  it("If passed an array of a single item array with full data set incling unix date, will return simple array with date swapped for valid string date and additional info", () => {
+  it("If passed an array of a single item array with full data set incling unix date, will return array with element's date swapped for valid string date and additional info", () => {
     const input = [
       {
         title: "Living in the shadow of a great man",
@@ -127,7 +127,7 @@ describe("makeRefObj", () => {
   it("returns an empty object if passed an empty array", () => {
     expect(makeRefObj([])).to.eql({});
   });
-  it("when passed simple array with simple object, returns reference key with keyvalue pair of title to article_id", () => {
+  it("when passed an array of a single item with simple object, returns reference key with keyvalue pair of title to article_id", () => {
     const input = [
       {
         article_id: 1,
@@ -143,7 +143,7 @@ describe("makeRefObj", () => {
       "Living in the shadow of a great man": 1
     });
   });
-  it("when passed simple array with complex object, returns reference key with keyvalue pair of title to article_id", () => {
+  it("when passed an array of a single item with complex object, returns reference key with keyvalue pair of title to article_id", () => {
     const input = [
       { article_id: 1, title: "Living in the shadow of a great man" }
     ];
@@ -204,7 +204,7 @@ describe("formatComments", () => {
     expect(result[0]).to.contain.keys(["article_id"]);
     expect(result[0].article_id).to.eql(1);
   });
-  it("when passed a simple array with a complex object adds a keyvalue pair for the matching title from the ref obj", () => {
+  it("when passed a an array of a single item with a complex object adds a keyvalue pair for the matching title from the ref obj", () => {
     const input = [
       {
         body:
@@ -220,7 +220,7 @@ describe("formatComments", () => {
     expect(result[0]).to.contain.keys(["article_id"]);
     expect(result[0].article_id).to.eql(1);
   });
-  it("when passed a simple array with a simple object changess a keyvalue pair of created_by to author", () => {
+  it("when passed an array of a single item with a simple object changess a keyvalue pair of created_by to author", () => {
     const input = [
       {
         belongs_to: "They're not exactly dogs, are they?",
@@ -233,7 +233,7 @@ describe("formatComments", () => {
     expect(result[0]).to.not.contain.keys(["created_by"]);
     expect(result[0].author).to.eql("whazzam");
   });
-  it("when passed a simple array with a complex object changess a keyvalue pair of created_by to author", () => {
+  it("when passed an array of a single item with a complex object changess a keyvalue pair of created_by to author", () => {
     const input = [
       {
         body:

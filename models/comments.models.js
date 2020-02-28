@@ -2,9 +2,9 @@ const connection = require("../db/connect");
 
 // models for other models / middleware <<<<<<<<<<<<<<<<<<<<<<<
 
-const fetchCommentsById = commentId => {
+const fetchCommentsById = commentIdObj => {
   return connection("comments")
-    .where(commentId)
+    .where(commentIdObj)
     .then(comment => {
       return comment[0];
     });
@@ -29,14 +29,14 @@ const doesItExist = (table, column, row) => {
 
 // model for pathway PATCH /api/comments/:comment_id
 
-exports.updateCommentVotesById = (commentId, votesToChange) => {
+exports.updateCommentVotesById = (commentIdObj, votesToChange) => {
   if (
     (typeof votesToChange === "number" && votesToChange !== NaN) ||
     votesToChange === undefined
   ) {
     return Promise.all([
-      fetchCommentsById(commentId),
-      doesItExist("comments", "comment_id", commentId.comment_id)
+      fetchCommentsById(commentIdObj),
+      doesItExist("comments", "comment_id", commentIdObj.comment_id)
     ]).then(([comment]) => {
       comment.votes += votesToChange || 0;
       return comment;
@@ -48,9 +48,9 @@ exports.updateCommentVotesById = (commentId, votesToChange) => {
 
 // model for pathway POST /api/comments/:comment_id
 
-exports.removeCommentById = commentId => {
+exports.removeCommentById = commentIdObj => {
   return connection("comments")
-    .where(commentId)
+    .where(commentIdObj)
     .then(comment => {
       if (comment.length === 0) {
         return Promise.reject({ status: 404, msg: "404 - not found" });

@@ -1,8 +1,8 @@
 const connection = require("../db/connect");
 
-exports.fetchUserById = username => {
+exports.fetchUserById = usernameObj => {
   return connection("users")
-    .where(username)
+    .where(usernameObj)
     .then(result => {
       if (result.length === 0) {
         return Promise.reject({

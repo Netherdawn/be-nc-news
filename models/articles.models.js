@@ -2,8 +2,7 @@ const connection = require("../db/connect");
 
 // models for other models / middleware <<<<<<<<<<<<<<<<<<<<<<<
 
-const fetchCommentsByArticleId = queryObj => {
-  console.log(queryObj);
+const UnfilteredCommentsByArticleId = queryObj => {
   return connection("comments")
     .where("article_id", queryObj.article_id)
     .orderBy(queryObj.sort_by || "created_at", queryObj.order || "desc")
@@ -48,7 +47,7 @@ const doesItExist = (table, column, row) => {
     });
 };
 
-const fetchEveryArticle = queryObj => {
+const QueryArticle = queryObj => {
   const searchTermsObj = queryBuilder(queryObj);
 
   return connection("articles")
@@ -77,7 +76,7 @@ exports.fetchAllArticles = queryObj => {
   }
 
   return Promise.all([
-    fetchEveryArticle(queryObj),
+    QueryArticle(queryObj),
     doesItExist("users", "username", author),
     doesItExist("topics", "slug", slug)
   ]).then(([articles, doesUserExist, doesTopicExist]) => {
@@ -89,7 +88,7 @@ exports.fetchAllArticles = queryObj => {
 
 exports.fetchArticleById = articleIdObj => {
   return Promise.all([
-    fetchEveryArticle(articleIdObj),
+    QueryArticle(articleIdObj),
     doesItExist("articles", "article_id", articleIdObj.article_id)
   ]).then(([articles]) => {
     return articles[0];
@@ -98,12 +97,12 @@ exports.fetchArticleById = articleIdObj => {
 
 // model for PATCH / articles/:article_id (increasing votes) <<<<<<<<<<<<<<<<<<<<<<<
 
-exports.updateArticleVotesById = (articleId, votesToChange) => {
+exports.updateArticleVotesById = (articleIdObj, votesToChange) => {
   if (
     (typeof votesToChange === "number" && votesToChange !== NaN) ||
     votesToChange === undefined
   ) {
-    return this.fetchArticleById(articleId).then(article => {
+    return this.fetchArticleById(articleIdObj).then(article => {
       if (votesToChange) {
         article.votes += votesToChange || 0;
         return article;
@@ -134,14 +133,14 @@ exports.createCommentByArticleId = (articleIdObj, username, body) => {
 
 // model for GET /articles/:article_id/comments <<<<<<<<<<<<<<<<<<<<<<<
 
-exports.fetchAllCommentsByArticleId = (articleId, queryObj) => {
-  const searchTermsObj = { ...articleId };
+exports.fetchAllCommentsByArticleId = (articleIdObj, queryObj) => {
+  const searchTermsObj = { ...articleIdObj };
   searchTermsObj.sort_by = queryObj.sort_by;
   searchTermsObj.order = queryObj.order;
 
   return Promise.all([
-    fetchCommentsByArticleId(searchTermsObj),
-    doesItExist("articles", "article_id", articleId.article_id)
+    UnfilteredCommentsByArticleId(searchTermsObj),
+    doesItExist("articles", "article_id", articleIdObj.article_id)
   ]).then(([comments]) => {
     return comments;
   });

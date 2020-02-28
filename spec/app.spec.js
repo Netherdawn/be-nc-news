@@ -4,12 +4,11 @@ const expect = chai.expect;
 chai.use(require("chai-sorted"));
 const app = require("../app");
 const connection = require("../db/connect");
-const knex = require("../db/connect");
 
 describe("/api", () => {
   after(() => connection.destroy());
   beforeEach(() => {
-    return knex.seed.run();
+    return connection.seed.run();
   });
   describe("GET", () => {
     it("GET 200 - responds with json of all endpoints", () => {
@@ -45,6 +44,7 @@ describe("/api", () => {
             .expect(200)
             .then(response => {
               expect(response.body.user).to.be.an("object");
+              expect(response.body.user.username).to.eql("butter_bridge");
               expect(response.body.user).to.contain.keys([
                 "username",
                 "name",
