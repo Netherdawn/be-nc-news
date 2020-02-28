@@ -4,19 +4,18 @@ const {
   makeRefObj,
   formatComments
 } = require("../db/utils/utils");
-const { doesItExist } = require("../models/utils");
 
 describe("formatDates", () => {
   it("If passed an empty array, will return an empty array", () => {
     expect(formatDates([])).to.eql([]);
   });
-  it("If passed a simple array with only unix date, will return simple array with date swapped for valid string date", () => {
+  it("If passed an array of a single item with only unix date, will return simple array with date swapped for valid string date", () => {
     const input = [{ created_at: 1542284514171 }];
     expect(formatDates(input)).to.eql([
       { created_at: "Thu, 15 Nov 2018 12:21:54 GMT" }
     ]);
   });
-  it("If passed a simple array with full data set incling unix date, will return simple array with date swapped for valid string date and additional info", () => {
+  it("If passed an array of a single item array with full data set incling unix date, will return simple array with date swapped for valid string date and additional info", () => {
     const input = [
       {
         title: "Living in the shadow of a great man",
