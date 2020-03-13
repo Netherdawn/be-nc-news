@@ -99,18 +99,21 @@ exports.fetchArticleById = articleIdObj => {
 
 exports.updateArticleVotesById = (articleIdObj, votesToChange) => {
   if (
-    (typeof votesToChange === "number" && votesToChange !== NaN) ||
-    votesToChange === undefined
+    (votesToChange.hasOwnProperty("inc_votes") &&
+      Object.keys(votesToChange).length === 1) ||
+    Object.keys(votesToChange).length === 0
   ) {
-    return this.fetchArticleById(articleIdObj).then(article => {
-      if (votesToChange) {
-        article.votes += votesToChange || 0;
-
-        return article;
-      } else {
-        return article;
-      }
-    });
+    return connection("articles")
+      .where(articleIdObj)
+      .increment("votes", votesToChange.inc_votes || 0)
+      .returning("*")
+      .then(article => {
+        if (article.length > 0) {
+          return article[0];
+        } else {
+          return Promise.reject({ status: 404, msg: "404 - not found" });
+        }
+      });
   } else {
     return Promise.reject({ status: 400, msg: "400 - bad request" });
   }

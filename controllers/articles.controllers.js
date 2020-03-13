@@ -30,7 +30,7 @@ exports.getArticleById = (req, res, next) => {
 
 // pathway PATCH /api/articles/:article_id (only affect votes)
 exports.patchArticleVotesById = (req, res, next) => {
-  updateArticleVotesById(req.params, req.body.inc_votes)
+  updateArticleVotesById(req.params, req.body)
     .then(article => {
       res.send({ article });
     })

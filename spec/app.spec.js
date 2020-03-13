@@ -273,16 +273,6 @@ describe("/api", () => {
             .send({ inc_votes: 1 })
             .expect(200)
             .then(response => {
-              expect(response.body.article).to.contain.keys([
-                `author`,
-                `title`,
-                `article_id`,
-                `body`,
-                `topic`,
-                `created_at`,
-                `votes`,
-                `comment_count`
-              ]);
               expect(response.body.article.votes).to.eql(101);
             });
         });
@@ -298,19 +288,9 @@ describe("/api", () => {
         it("PATCH 200 - responds with returns unchanged article if body provided does not include key value pair inc_votes & integer", () => {
           return request(app)
             .patch("/api/articles/1")
-            .send({ ind_votes: -1 })
+            .send({})
             .expect(200)
             .then(response => {
-              expect(response.body.article).to.have.all.keys([
-                `author`,
-                `title`,
-                `article_id`,
-                `body`,
-                `topic`,
-                `created_at`,
-                `votes`,
-                `comment_count`
-              ]);
               expect(response.body.article.votes).to.eql(100);
             });
         });
@@ -520,7 +500,7 @@ describe("/api", () => {
         it("PATCH 200 - does not increase vote if does not include key value pair inc_votes: integer", () => {
           return request(app)
             .patch("/api/comments/1")
-            .send({ ind_votes: -1 })
+            .send({})
             .expect(200)
             .then(response => {
               expect(response.body.comment.votes).to.eql(16);

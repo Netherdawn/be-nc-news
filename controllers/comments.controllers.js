@@ -5,7 +5,7 @@ const {
 
 // pathway PATCH /api/comments/:comment_id
 exports.patchCommentVotesById = (req, res, next) => {
-  updateCommentVotesById(req.params, req.body.inc_votes)
+  updateCommentVotesById(req.params, req.body)
     .then(comment => {
       res.send({ comment });
     })
